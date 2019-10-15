@@ -4,8 +4,8 @@ import React from 'react';
 
 const Navigation = () =>{
     return (
-        <nav style={{display: 'flex', justifyContent:'flex-end'}}>
-            {/* since we are passing an object we use brackets */}
+        <nav className='flex justify-end'>
+            {/* when we are passing a jsx object we use brackets */}
             <p className='f3 link dim black underline pa3 pointer'>Sign Out</p>
         </nav>
     );
