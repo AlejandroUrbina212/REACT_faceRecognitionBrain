@@ -35,9 +35,34 @@ class App extends React.Component{
     super();
     this.state = {
       input: '',
-      imageUrl: ''
+      imageUrl: '',
+      box: {}
     }
   };
+
+  /** calculates the position where the face box will have its corners */
+  /** params: data is the object of the Clairifai API response */
+  /** return: an object whom the attributes are the four corners of the face */
+  calculateFaceLocation = (data) => {
+    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
+    // DOM manipulation
+    const image = document.getElementById('inputImage');
+    const width = Number(image.width);
+    const height = Number(image.height);
+    console.log(width,height);
+    return {
+      leftCol: clarifaiFace.left_col * width,
+      topRow: clarifaiFace.top_row * height,
+      rightCol: width - (clarifaiFace.right_col * width),
+      bottomRow: height - (clarifaiFace.bottom_row * height)
+    }
+  }
+
+  // changes the box state, 
+  displayFaceBox = (box) => {
+    console.log(box)
+    this.setState({box: box});
+  }
   /** triggers the event when onInputChange is called in ImageLinkForm(that receives the methods as props)
    *  input is changed in this.state
   */
@@ -51,17 +76,13 @@ class App extends React.Component{
 
   onButtonSubmit = () => {
     this.setState({imageUrl: this.state.input})
-    app.models.predict(
-    Clarifai.FACE_DETECT_MODEL,
+    app.models
+      .predict(
+        Clarifai.FACE_DETECT_MODEL,
         // URL
-        this.state.input
-    )
-    .then(function(response) {
-          console.log(response.outputs[0].data.regions[0].region_info.bounding_box);
-        },
-        function(err) {// there was an error
-        }
-    );
+        this.state.input)
+    .then(response => this.displayFaceBox(this.calculateFaceLocation(response)))
+    .catch(err => console.log(err));
   }
   render() {
     return (
@@ -77,6 +98,8 @@ class App extends React.Component{
         onInputChange={this.onInputChange}
         onButtonSubmit={this.onButtonSubmit}/>
         <FaceRecognition
+        /* sending the box onject from this.state to FaceRecognition component as props*/
+        box = {this.state.box}
         /* sending the imageUrl from this.state to FaceRecognitionComponent as props */
         imageUrl={this.state.imageUrl}/>
     </div>
