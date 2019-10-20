@@ -4,6 +4,8 @@ import Clarifai from 'clarifai';
 
 
 import Navigation from './components/Navigation/Navigation';
+import Signin from './components/Signin/Signin';
+import Register from './components/Register/Register'
 import Logo from './components/Logo/Logo';
 import Rank from './components/Rank/Rank';
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
@@ -36,7 +38,9 @@ class App extends React.Component{
     this.state = {
       input: '',
       imageUrl: '',
-      box: {}
+      box: {},
+      route: 'signin',
+      isSignedIn: false
     }
   };
 
@@ -60,7 +64,6 @@ class App extends React.Component{
 
   // changes the box state, 
   displayFaceBox = (box) => {
-    console.log(box)
     this.setState({box: box});
   }
   /** triggers the event when onInputChange is called in ImageLinkForm(that receives the methods as props)
@@ -73,7 +76,6 @@ class App extends React.Component{
   /**  triggers the click when onButtonSubmit is called in ImageLinkForm(that receives the methods as props) 
    * imageUrl is changed in this.state, and then it is passed to the predict method that Clairifai provides 
   */
-
   onButtonSubmit = () => {
     this.setState({imageUrl: this.state.input})
     app.models
@@ -84,24 +86,41 @@ class App extends React.Component{
     .then(response => this.displayFaceBox(this.calculateFaceLocation(response)))
     .catch(err => console.log(err));
   }
+
+  onRouteChange = (route) => {
+    if(route === 'signout'){
+      this.setState({isSignedIn:false});
+    } else if (route === 'home'){
+      this.setState({isSignedIn:'true'});
+    }
+    this.setState({route: route});
+  }
   render() {
     return (
       <div className="App">
         <Particles className='particles'
           params={particlesOptions}
         />
-        <Navigation/>
-        <Logo/>
-        <Rank/>
-        <ImageLinkForm 
-        /* sending the methods to the ImageLinkForm component as Props */
-        onInputChange={this.onInputChange}
-        onButtonSubmit={this.onButtonSubmit}/>
-        <FaceRecognition
-        /* sending the box onject from this.state to FaceRecognition component as props*/
-        box = {this.state.box}
-        /* sending the imageUrl from this.state to FaceRecognitionComponent as props */
-        imageUrl={this.state.imageUrl}/>
+        <Navigation onRouteChange={this.onRouteChange} isSignedIn={this.state.isSignedIn}/>
+        { this.state.route === 'home'
+          ? <div>
+              <Logo/>
+              <Rank/>
+              <ImageLinkForm 
+              /* sending the methods to the ImageLinkForm component as Props */
+              onInputChange={this.onInputChange}
+              onButtonSubmit={this.onButtonSubmit}/>
+              <FaceRecognition
+              /* sending the box onject from this.state to FaceRecognition component as props*/
+              box = {this.state.box}
+              /* sending the imageUrl from this.state to FaceRecognitionComponent as props */
+              imageUrl={this.state.imageUrl}/>
+            </div>
+          : ( this.state.route === 'signin'
+            ? <Signin onRouteChange={this.onRouteChange}/>
+            : <Register onRouteChange={this.onRouteChange}/>
+          )
+      }       
     </div>
     );  
   }
