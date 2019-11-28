@@ -40,7 +40,14 @@ class App extends React.Component{
       imageUrl: '',
       box: {},
       route: 'signin',
-      isSignedIn: false
+      isSignedIn: false,
+      user : {
+        id : '',
+        name : '',
+        email: '',
+        entries : '',
+        join: ''
+      }
     }
   };
 
@@ -52,6 +59,15 @@ class App extends React.Component{
     .then(data => console.log(data));
   }
 
+  loadUser = (data) => {
+    this.setState({user: {
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      entries: data.entries,
+      joined: data.joined
+    }})
+  }
   /** calculates the position where the face box will have its corners */
   /** params: data is the object of the Clairifai API response */
   /** return: an object whom the attributes are the four corners of the face */
@@ -91,9 +107,26 @@ class App extends React.Component{
         Clarifai.FACE_DETECT_MODEL,
         // URL
         this.state.input)
-    .then(response => this.displayFaceBox(this.calculateFaceLocation(response)))
+      .then(response => {
+        if (response){
+          fetch('http://localhost:3000/image', {
+              method : 'put',
+              headers : {'Content-type': 'application/json'},
+              body : JSON.stringify({
+                  id: this.state.user.id,
+              })
+          })
+          .then(response => response.json())
+          .then(count => {
+            this.setState(Object.assign(this.state.user, {entries: count }));   
+          })
+        }
+        this.displayFaceBox(this.calculateFaceLocation(response))
+      })
     .catch(err => console.log(err));
   }
+
+
 
   onRouteChange = (route) => {
     if(route === 'signout'){
@@ -113,7 +146,7 @@ class App extends React.Component{
         { this.state.route === 'home'
           ? <div>
               <Logo/>
-              <Rank/>
+              <Rank name={this.state.user.name} entries={this.state.user.entries}/>
               <ImageLinkForm 
               /* sending the methods to the ImageLinkForm component as Props */
               onInputChange={this.onInputChange}
@@ -125,8 +158,8 @@ class App extends React.Component{
               imageUrl={this.state.imageUrl}/>
             </div>
           : ( this.state.route === 'signin'
-            ? <Signin onRouteChange={this.onRouteChange}/>
-            : <Register onRouteChange={this.onRouteChange}/>
+            ? <Signin loadUser = {this.loadUser} onRouteChange={this.onRouteChange}/>
+            : <Register loadUser = {this.loadUser} onRouteChange={this.onRouteChange}/>
           )
       }       
     </div>
