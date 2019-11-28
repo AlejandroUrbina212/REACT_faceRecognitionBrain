@@ -44,6 +44,14 @@ class App extends React.Component{
     }
   };
 
+  componentDidMount(){
+    // fetch the roor route from the server running the server.js script
+    // data should be all the users, as a json
+    fetch('http://localhost:3000/')
+    .then(response => response.json())
+    .then(data => console.log(data));
+  }
+
   /** calculates the position where the face box will have its corners */
   /** params: data is the object of the Clairifai API response */
   /** return: an object whom the attributes are the four corners of the face */
