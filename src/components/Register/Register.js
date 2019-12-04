@@ -35,7 +35,7 @@ class Register extends React.Component {
     }
     
     /**
-     * onSubmitSignIn fetchs the signin route, and sends a post request with the signInEmail ant the
+     * onSubmitSignIn fetchs the register route, and sends a post request with the signInEmail ant the
      * signInPassword in the body, it also waits for the success response, and then, changes the route
      * in the App.js state via the onRouteChange function provided as props
      */
@@ -54,11 +54,11 @@ class Register extends React.Component {
             if (user){
                 this.props.loadUser(user);
                 this.props.onRouteChange('home');
+                console.log('1', user);
             }
         });
     }
     render(){
-        const { onRouteChange } = this.props;
         return (
             <article className="br3 ba dark-gray b--black-10 mv4 w-100 w-50-m w-25-l mw6 shadow-5 center">
                 <main className="pa4 black-80">

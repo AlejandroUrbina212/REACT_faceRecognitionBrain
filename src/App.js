@@ -67,6 +67,7 @@ class App extends React.Component{
       entries: data.entries,
       joined: data.joined
     }})
+    
   }
   /** calculates the position where the face box will have its corners */
   /** params: data is the object of the Clairifai API response */
@@ -125,8 +126,6 @@ class App extends React.Component{
       })
     .catch(err => console.log(err));
   }
-
-
 
   onRouteChange = (route) => {
     if(route === 'signout'){
